@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Chatbot</title>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-box" id="chat-box">
+            <!-- Chat messages will be displayed here -->
+        </div>
+        <div class="user-input">
+            <input type="text" id="user-message" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script>
+        function sendMessage() {
+            const userMessage = document.getElementById('user-message').value;
+            appendMessage('user', userMessage);
+
+            // Send the user message to the server
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `user_message=${userMessage}`,
+            })
+            .then(response => response.json())
+            .then(data => {
+                const botResponse = data.bot;
+                appendMessage('bot', botResponse);
+            });
+        }
+
+        function appendMessage(sender, message) {
+            const chatBox = document.getElementById('chat-box');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add(sender);
+            messageElement.innerText = message;
+            chatBox.appendChild(messageElement);
+
+            // Clear the input field after sending a message
+            document.getElementById('user-message').value = '';
+        }
+    </script>
+</body>
+</html>
